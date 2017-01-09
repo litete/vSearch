@@ -91,7 +91,7 @@
 				legend : {
 					x : 'left',
 					y : 'bottom',
-					data : [ '人物', '组织机构', '地点' ],
+					data : [ '人物', '组织机构', '地点' , '技术名词'],
 					orient : 'vertical',
 					textStyle:{
 						fontFamily : '微软雅黑'

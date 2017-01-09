@@ -53,7 +53,7 @@ public class BHController {
         }
     }
 
-    @RequestMapping("/msearch")
+    @RequestMapping("/iHelpdesk")
     public String mySearch(/*@RequestParam String person,@RequestParam String location,
                         @RequestParam Str institution*/ HttpServletRequest request, Model model) throws SQLException {
 
