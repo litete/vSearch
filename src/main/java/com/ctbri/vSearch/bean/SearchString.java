@@ -1,87 +1,155 @@
 package com.ctbri.vSearch.bean;
 
-import org.neo4j.cypher.internal.compiler.v2_0.functions.Str;
-
 /**
  * Created by lite on 2017/1/8.
  */
 public class SearchString {
-    String word="";
+    //String word = "";
 
-    public void setWord(String word) {
-        this.word = word;
+    // public void setWord(String word) {
+//        this.word = word;
+//    }
+
+    private String queryP;
+    private String queryL;
+    private String queryI;
+    private String queryT;
+    private String queryAll;
+
+    public String getQueryAll(String word) {
+        //System.out.println("word:"+word);
+        this.queryAll = "MATCH (n:other {content:'" + word + "'} )-[r]->(f) " +
+                "RETURN  n as node,r as dis, f as nextlayer  " +
+                "ORDER by r.weight DESC limit 10  " +
+                "UNION " +
+                "MATCH (n:other {content:'" + word + "'} )-[r]->(f) " +
+                "WITH  f as layer1  " +
+                "ORDER by r.weight DESC limit 3 " +
+                "MATCH (layer1)-[r]->(f2) " +
+                "WITH layer1,f2 " +
+                "ORDER BY r.weight DESC  " +
+                "WITH layer1,collect(f2)[0..5] as list " +
+                "ORDER BY id(layer1) " +
+                "MATCH (layer1)-[r]->(layer2) " +
+                "WHERE layer2 in list " +
+                "RETURN layer1 as node, r as dis, layer2 as nextlayer";
+        return queryAll;
     }
 
-    private String queryP=" match (n {content:'"+word+"'}) - [r1] ->(f1)" +
-            " where f1.category='person'" +
-            " return r1 as dis, f1 as layernode" +
-            " order by r1.weight";
-    private String queryL=" match (n {content:'"+word+"'}) - [r2] ->(f2)" +
-            " where f2.category='location'" +
-            " return r2 as dis, f2 as layernode" +
-            " order by r2.weight ";
-    private String queryI=" match (n {content:'"+word+"'}) - [r3] ->(f3)" +
-            " where f3.category='institution'" +
-            " return r3 as dis, f3 as layernode" +
-            " order by r3.weight ";
-    private String queryT=" match (n {content:'"+word+"'}) - [r4] ->(f4)" +
-            " where f4.category='techn'" +
-            " return r4 as dis, f4 as layernode" +
-            " order by r4.weight ";
-    private String limit10="desc limit 10";
-    private String limit5=" desc limit 5";
-    private String Limit3=" desc limit 3";
-    private String union=" union ";
-
-    public String getWord() {
-        return word;
+    public void setQueryAll(String queryAll) {
+        this.queryAll = queryAll;
     }
+
+    private String limit10;
+    private String limit5;
+    private String Limit3;
+    private String union;
+
+//    public String getWord() {
+//        return word;
+//    }
 
     public String getQueryP(String word) {
-        this.queryP=" match (n {content:'"+word+"'}) - [r1] ->(f1)" +
-                " where f1.category='person'" +
-                " return r1 as dis, f1 as layernode" +
-                " order by r1.weight";
+        this.queryP = "MATCH (n:other {content:'" + word + "'} )-[r]->(f) " +
+                "WHERE f.category = 'person' " +
+                "RETURN  n as node,r as dis, f as nextlayer  " +
+                "ORDER by r.weight DESC limit 10  " +
+                "UNION\n" +
+                "MATCH (n:other {content:'" + word + "'} )-[r]->(f) " +
+                "WHERE f.category = 'person' " +
+                "WITH  f as layer1  " +
+                "ORDER by r.weight DESC limit 3 " +
+                "MATCH (layer1)-[r]->(f2) " +
+                "WHERE f2.category = 'person'  " +
+                "WITH layer1,f2 " +
+                "ORDER BY r.weight DESC  " +
+                "WITH layer1,collect(f2)[0..5] as list " +
+                "ORDER BY id(layer1) " +
+                "MATCH (layer1)-[r]->(layer2) " +
+                "WHERE layer2 in list " +
+                "RETURN layer1 as node, r as dis, layer2 as nextlayer";
         return queryP;
     }
 
-    public void setQueryP(String queryP,String word) {
+    public void setQueryP(String queryP, String word) {
         this.queryP = queryP;
     }
 
     public String getQueryL(String word) {
-        this.queryL=" match (n {content:'"+word+"'}) - [r2] ->(f2)" +
-                " where f2.category='location'" +
-                " return r2 as dis, f2 as layernode" +
-                " order by r2.weight ";
+        this.queryL = "MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'location' " +
+                "RETURN  n as node,r as dis, f as nextlayer  " +
+                "ORDER by r.weight DESC limit 10  " +
+                "UNION " +
+                "MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'location' " +
+                "WITH  f as layer1  " +
+                "ORDER by r.weight DESC limit 3 " +
+                "MATCH (layer1)-[r]->(f2) " +
+                "WHERE f2.category = 'location'  " +
+                "WITH layer1,f2 " +
+                "ORDER BY r.weight DESC  " +
+                "WITH layer1,collect(f2)[0..5] as list " +
+                "ORDER BY id(layer1) " +
+                "MATCH (layer1)-[r]->(layer2) " +
+                "WHERE layer2 in list " +
+                "RETURN layer1 as node, r as dis, layer2 as nextlayer";
         return queryL;
     }
 
-    public void setQueryL(String queryL,String word) {
+    public void setQueryL(String queryL, String word) {
         this.queryL = queryL;
     }
 
     public String getQueryI(String word) {
-        this.queryI=" match (n {content:'"+word+"'}) - [r3] ->(f3)" +
-                " where f3.category='institution'" +
-                " return r3 as dis, f3 as layernode" +
-                " order by r3.weight ";
+        this.queryI = " MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'institution' " +
+                "RETURN  n as node,r as dis, f as nextlayer  " +
+                "ORDER by r.weight DESC limit 10  " +
+                "UNION " +
+                "MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'institution' " +
+                "WITH  f as layer1 " +
+                "ORDER by r.weight DESC limit 3 " +
+                "MATCH (layer1)-[r]->(f2) " +
+                "WHERE f2.category = 'institution'  " +
+                "WITH layer1,f2 " +
+                "ORDER BY r.weight DESC " +
+                "WITH layer1,collect(f2)[0..5] as list " +
+                "ORDER BY id(layer1) " +
+                "MATCH (layer1)-[r]->(layer2) " +
+                "WHERE layer2 in list " +
+                "RETURN layer1 as node, r as dis, layer2 as nextlayer ";
         return queryI;
     }
 
-    public void setQueryI(String queryI,String word) {
+    public void setQueryI(String queryI, String word) {
         this.queryI = queryI;
     }
 
     public String getQueryT(String word) {
-        this.queryT=" match (n {content:'"+word+"'}) - [r4] ->(f4)" +
-                " where f4.category='tech'" +
-                " return r4 as dis, f4 as layernode" +
-                " order by r4.weight ";
+        this.queryT = " MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'tech' " +
+                "RETURN  n as node,r as dis, f as nextlayer  " +
+                "ORDER by r.weight DESC limit 10  " +
+                "UNION " +
+                "MATCH (n:other {content:'"+word+"'} )-[r]->(f) " +
+                "WHERE f.category = 'tech' " +
+                "WITH  f as layer1 " +
+                "ORDER by r.weight DESC limit 3 " +
+                "MATCH (layer1)-[r]->(f2) " +
+                "WHERE f2.category = 'tech'  " +
+                "WITH layer1,f2 " +
+                "ORDER BY r.weight DESC  " +
+                "WITH layer1,collect(f2)[0..5] as list " +
+                "ORDER BY id(layer1) " +
+                "MATCH (layer1)-[r]->(layer2) " +
+                "WHERE layer2 in list " +
+                "RETURN layer1 as node, r as dis, layer2 as nextlayer ";
         return queryT;
     }
 
-    public void setQueryT(String queryT,String word) {
+    public void setQueryT(String queryT, String word) {
         this.queryT = queryT;
     }
 

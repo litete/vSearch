@@ -10,9 +10,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,15 +56,7 @@ public class BHController {
     }
 
     @RequestMapping("/iHelpdesk")
-    public String mySearch(/*@RequestParam String person,@RequestParam String location,
-                        @RequestParam Str institution*/ HttpServletRequest request, Model model) throws SQLException {
-
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String word = request.getParameter("word");
+    public String mySearch(HttpServletRequest request, Model model) throws SQLException, IOException {
         Connection con = null;
         try {
             con = DriverManager.getConnection(
@@ -70,150 +64,115 @@ public class BHController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("word:" + word);
-        SearchString searchString = new SearchString();
-        searchString.setWord(word);
-        String s = searchString.getWord();
-        int person = Integer.parseInt(request.getParameter("p"));
-        int location = Integer.parseInt(request.getParameter("l"));
-        int institution = Integer.parseInt(request.getParameter("i"));
-        int technology = Integer.parseInt(request.getParameter("t"));
-        String queryP = searchString.getQueryP(s);
-        String queryL = searchString.getQueryL(s);
-        String queryI = searchString.getQueryI(s);
-        String queryT = searchString.getQueryT(s);
-        String limit10 = searchString.getLimit10();
-        String limit5 = searchString.getLimit5();
-        String limit3 = searchString.getLimit3();
-        String union = searchString.getUnion();
         ObjectMapper obj = new ObjectMapper();
         PreparedStatement stmt = null; // 采用预编译，和关系数据库不一样的是,参数需要使用{1},{2},而不是?
         ResultSet rs = null;
         List<String> nodes = new ArrayList<String>();
         List<String> links = new ArrayList<String>();
+        String word1 = request.getParameter("word");
+        //String select = request.getParameter("select");
+        int p = Integer.parseInt(request.getParameter("p"));
+        int l = Integer.parseInt(request.getParameter("l"));
+        int i = Integer.parseInt(request.getParameter("i"));
+        int t = Integer.parseInt(request.getParameter("t"));
+        String word = word1.replaceAll(" ", "");
+        System.out.println("word:" + word);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        System.out.println(df.format(new java.util.Date()));// new Date()为获取当前系统时间
+        SearchString searchString = new SearchString();
         try {
-            if (person == 1) {
-                if (location == 1) {
-                    if (institution == 1) {
-                        if (technology == 1) {
-/*1111 */
-
-                            stmt = con.prepareStatement(queryP + limit3 + union + queryL + limit3 + union + queryI + limit3 + union + queryT + limit3);
-
-                            System.out.println(queryP + limit3 + union + queryL + limit3 + union + queryI + limit3 + union + queryT + limit3);
-                            //  System.out.println("1111");
-
-
-                        } else if (technology == 0) {
-/*1110*/
-                            stmt = con.prepareStatement(queryP + limit3 + union + queryL + limit3 + union + queryI + limit3);
-                        }
-                    } else if (institution == 0) {
-                        if (technology == 1) {
-/*1101*/
-                            stmt = con.prepareStatement(queryP + limit3 + union + queryL + limit3 + union + queryT + limit3);
-                        } else if (technology == 0) {
-/*1100*/
-                            stmt = con.prepareStatement(queryP + limit5 + union + queryL + limit5);
-                        }
-                    }
-                } else if (location == 0) {
-                    if (institution == 1) {
-                        if (technology == 1) {
-/*1011*/
-                            stmt = con.prepareStatement(queryP + limit3 + union + queryI + limit3 + union + queryT + limit3);
-                        } else if (technology == 0) {
-/*1010*/
-                            stmt = con.prepareStatement(queryP + limit5 + union + queryI + limit5);
-                        }
-                    } else if (institution == 0) {
-                        if (technology == 1) {
-/*1001*/
-                            stmt = con.prepareStatement(queryP + limit5 + union + queryT + limit5);
-                        } else if (technology == 0) {
-/*1000*/
-                            stmt = con.prepareStatement(queryP + limit10);
-                        }
-                    }
-                }
-            } else if (person == 0) {
-                if (location == 1) {
-                    if (institution == 0) {
-                        if (technology == 0) {
-/*0100*/
-                            stmt = con.prepareStatement(queryL + limit10);
-                        } else if (technology == 1) {
-/*0101*/
-                            stmt = con.prepareStatement(queryL + limit5 + union + queryT + limit5);
-                        }
-                    } else if (institution == 1) {
-                        if (technology == 0) {
-/*0110*/
-                            stmt = con.prepareStatement(queryL + limit5 + union + queryI + limit5);
-                        } else if (technology == 1) {
-/*0111*/
-                            stmt = con.prepareStatement(queryL + limit3 + union + queryI + limit3 + union + queryT + limit3);
-                        }
-                    }
-                } else if ((location == 0)) {
-                    if (institution == 0) {
-                        if (technology == 0) {
-/*0000*/
-                        } else if (technology == 1) {
-/*0001*/
-                            stmt = con.prepareStatement(queryT + limit10);
-                        }
-                    } else if (institution == 1) {
-                        if (technology == 0) {
-/*0010*/
-                            stmt = con.prepareStatement(queryI + limit10);
-
-                        } else if (technology == 1) {
-/*0011*/
-                            stmt = con.prepareStatement(queryI + limit5 + union + queryT + limit5);
-
-                        }
-                    }
-                }
-
+            if (p == 1 && l == 0 && i == 0 && t == 0) {
+                //stmt = con.prepareStatement(searchString.getQueryP(word));
+                stmt = con.prepareStatement(searchString.getQueryP(word));
+            } else if (p == 0 && l == 1 && i == 0 && t == 0) {
+                stmt = con.prepareStatement(searchString.getQueryL(word));
+            } else if (p == 0 && l == 0 && i == 1 && t == 0) {
+                stmt = con.prepareStatement(searchString.getQueryI(word));
+            } else if (p == 0 && l == 0 && i == 0 && t == 1) {
+                stmt = con.prepareStatement(searchString.getQueryT(word));
+            } else if (p == 1 && l == 1 && i == 1 && t == 1) {
+                stmt = con.prepareStatement(searchString.getQueryAll(word));
+            } else {
+                stmt = null;
             }
-            rs = stmt.executeQuery();
-            Node node1 = new Node();
-            node1.setName(word);
-            node1.setCategory(0);
-            node1.setValue(1.0);
-            node1.setLabel(null);
-            String nodelStr = obj.writeValueAsString(node1);
-            nodes.add(nodelStr);
-            //  nodes.add("{\"name\":\"马云\",\"category\":0,\"value\":1.0,\"label\":null},");
-            while (rs.next()) {
-                JSONObject linkJson = JSONObject.parseObject(rs.getString(1));
-                JSONObject nodeJson = JSONObject.parseObject(rs.getString(2));
-                Link link = new Link();
-                link.setName(nodeJson.getString("category"));
-                // System.out.println(nodeJson.getString("category"));
-                link.setSource(linkJson.getString("from"));
-                //System.out.println("中点" + linkJson.get("from"));
-                link.setTarget(linkJson.getString("to"));
-                link.setWeight(linkJson.getDouble("weight"));
-                String linkStr = obj.writeValueAsString(link);
-                // System.out.println(linkStr);
-                links.add(linkStr);
+            if (stmt == null) {
+                String s1 = "";
+                String s2 = "没有与" + word + "相关的匹配结果";
+                String s1Str = obj.writeValueAsString(s1);
+                String s2Str = obj.writeValueAsString(s2);
+                model.addAttribute("nodes", s1Str);
+                model.addAttribute("links", s1Str);
+                model.addAttribute("tips", s2Str);
+                System.out.println("nodes:" + s1Str);
+                System.out.println("tips:" + s2Str);
+            } else {
+                rs = stmt.executeQuery();
+                System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
+                Node node1 = new Node();
+                node1.setName(word);
+                node1.setCategory(0);
+                node1.setValue(1.0);
+                node1.setLabel(null);
+                String nodelStr = obj.writeValueAsString(node1);
+                nodes.add(nodelStr);
+                if (rs != null) {
+                    while (rs.next()) {
+                        JSONObject linkJson = JSONObject.parseObject(rs.getString(2));
+                        JSONObject nodeJson = JSONObject.parseObject(rs.getString(3));
+                        // System.out.println("linkJson:" + linkJson.toString());
+                        // System.out.println("nodeJson:" + nodeJson.toString());
+                        Link link = new Link();
+                        link.setName(nodeJson.getString("category"));
+                        link.setSource(linkJson.getString("from"));
+                        link.setTarget(linkJson.getString("to"));
+                        link.setWeight(linkJson.getDouble("weight"));
+                        Node node = new Node();
+                        node.setCategory(nodeJson.getString("category"));
+                        node.setValue((double) 1);
+                        node.setName(nodeJson.getString("content"));
+                        String nodeStr = obj.writeValueAsString(node);
+                        nodes.add(nodeStr);
+                        if (linkJson.getString("to").equals(word)) {
+                            continue;
+                        } else {
+                            String linkStr = obj.writeValueAsString(link);
+                            links.add(linkStr);
 
-                Node node = new Node();
-                // node.setLabel("lite");
-                //  System.out.println("nodeJson"+nodeJson);
-                node.setCategory(nodeJson.getString("category"));
-                node.setValue((double) 1);
-                node.setName(nodeJson.getString("content"));
-                String nodeStr = obj.writeValueAsString(node);
-                //System.out.println(nodeStr);
-                nodes.add(nodeStr);
-                model.addAttribute("links", links.toString());
-                model.addAttribute("nodes", nodes.toString());
+                        }
+                        String s2 = "";
+                        String s2Str = obj.writeValueAsString(s2);
+                        model.addAttribute("links", links);
+                        model.addAttribute("nodes", nodes);
+                        model.addAttribute("tips", s2Str);
+                    }
+
+
+                    //System.out.println("跑出来了");
+                    if (links.size() == 0) {
+                        String s1 = "";
+                        String s2 = "没有与" + word + "相关的匹配结果";
+                        String s1Str = obj.writeValueAsString(s1);
+                        String s2Str = obj.writeValueAsString(s2);
+                        model.addAttribute("nodes", s1Str);
+                        model.addAttribute("links", s1Str);
+                        model.addAttribute("tips", s2Str);
+                    }
+
+                } else {
+                    String s1 = "";
+                    String s2 = "没有与" + word + "相关的匹配结果";
+                    String s1Str = obj.writeValueAsString(s1);
+                    String s2Str = obj.writeValueAsString(s2);
+                    model.addAttribute("nodes", s1Str);
+                    model.addAttribute("links", s1Str);
+                    model.addAttribute("tips", s2Str);
+                }
+                System.out.println("links" + links);
+                System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
+                System.out.println("nodes" + nodes);
+                System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
             }
-            System.out.println("links.toString()" + links.toString());
-            System.out.println("nodes.toString()" + nodes.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -229,100 +188,4 @@ public class BHController {
     }
 
 
-    @RequestMapping(value = "/vsearch")
-    public String phone() {
-        return "";
-    }
-
-    @RequestMapping(value = "/log")
-    public String point(HttpServletRequest request) {
-        String username = request.getParameter("username");
-        request.setAttribute("userName", username);
-        return "business";
-    }
-
-    @RequestMapping(value = "/index")
-    public String index(HttpServletRequest request, Model model) {
-        if (request.getParameter("word") == null
-                || request.getParameter("word").equals("")) {
-            System.out.println(request.getParameter("word"));
-            return "index";
-        }
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
-        }
-        String word = request.getParameter("word");
-        System.out.println(word);
-        model.addAttribute("keyword", word);
-        return "index";
-    }
-
-    @RequestMapping(value = "/vknowledge")
-    public String rpoint() {
-        return "knowledge";
-    }
-
-    @RequestMapping(value = "/marketing")
-    public String task(HttpServletRequest request, Model model) {
-        if (request.getParameter("word") == null
-                || request.getParameter("word").equals("")) {
-            System.out.println(request.getParameter("word"));
-            return "marketing";
-        }
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
-        }
-        String word = request.getParameter("word");
-        model.addAttribute("keyword", word);
-        return "marketing";
-    }
-
-    @RequestMapping(value = "/search_institution")
-    public String institution() {
-        return "search_institution";
-    }
-
-    @RequestMapping(value = "/search_person")
-    public String person() {
-        return "search_person";
-    }
-
-    @RequestMapping(value = "/search_place")
-    public String place() {
-        return "search_place";
-    }
-
-    @RequestMapping(value = "/search_table")
-    public String table() {
-        return "search_table";
-    }
-
-    @RequestMapping(value = "/toutiao")
-    public String toutiao(HttpServletRequest request, Model model) {
-        if (request.getParameter("word") == null
-                || request.getParameter("word").equals("")) {
-            System.out.println(request.getParameter("word"));
-            return "toutiao";
-        }
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
-        }
-        String word = request.getParameter("word");
-        model.addAttribute("keyword", word);
-        return "toutiao";
-    }
-
-    @RequestMapping(value = "/")
-    public String root() {
-        return "index";
-    }
 }
